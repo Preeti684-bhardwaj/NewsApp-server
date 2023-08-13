@@ -45,6 +45,15 @@ const getNews = async (req, res) => {
       }
 
 }
+const getAllNews = async (req, res) => {
+    try {
+        const newsdata= await newsModel.find().select({__v:0});
+         res.status(200).json(newsdata);
+      } catch (error) {
+        res.status(500).send({ message: error.message });
+      }
+
+}
 const getNewsById = async (req, res) => {
     try {
         const id = req.params.id;
@@ -62,4 +71,4 @@ const getNewsById = async (req, res) => {
 
 }
 
-module.exports = { createNews,getNews, getNewsById }
+module.exports = { createNews,getNews, getNewsById,getAllNews }

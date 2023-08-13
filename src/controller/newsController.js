@@ -3,9 +3,9 @@ const axios = require('axios');
 const dotenv=require('dotenv').config()
 const {API_KEY } = process.env;
 
-const fetchNewsAndStore = async (category) => {
+const fetchNewsAndStore = async (category,country) => {
   try {
-    const newData = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=${API_KEY}`);
+    const newData = await axios.get(`https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${API_KEY}`);
     const newsData = newData.data.articles;
     const news = newsData.map((val) => ({
       title: val.title,
@@ -15,9 +15,11 @@ const fetchNewsAndStore = async (category) => {
       source: val.source.name,
       url: val.url,
       category: category,
+      place:country
     }));
 
     await newsModel.create(news);
+    console.log(news)
   } catch (err) {
     console.error(err);
   }
@@ -26,10 +28,11 @@ const fetchNewsAndStore = async (category) => {
 const createNews = async (req, res) => {
   try {
     // Fetch data from CoinCap API
-    const category = req.query.category; // Category received from the query parameter
-    await fetchNewsAndStore(category);
+    const data = req.query; 
+    const {category,country}=data// Category received from the query parameter
+    await fetchNewsAndStore(category,country);
 
-    return res.status(200).send({ message: 'News data fetched and stored successfully.' });
+    return res.status(200).send({ message: 'News data fetched and stored successfully.' ,data:category });
   } catch (err) {
     res.status(500).send({ status: false, message: err.message });
   }

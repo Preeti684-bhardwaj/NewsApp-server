@@ -43,7 +43,6 @@ const getNews = async (req, res) => {
       } catch (error) {
         res.status(500).send({ message: error.message });
       }
-
 }
 const getAllNews = async (req, res) => {
     try {

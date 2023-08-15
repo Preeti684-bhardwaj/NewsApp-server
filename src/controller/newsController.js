@@ -3,9 +3,9 @@ const axios = require('axios');
 const dotenv=require('dotenv').config()
 const {API_KEY } = process.env;
 
-const fetchNewsAndStore = async (category,country) => {
+const fetchNewsAndStore = async (category) => {
   try {
-    const newData = await axios.get(`https://newsapi.org/v2/top-headlines?country=${country}&category=${category}&apiKey=${API_KEY}`);
+    const newData = await axios.get(`https://newsapi.org/v2/top-headlines?country=in&category=${category}&apiKey=${API_KEY}`);
     const newsData = newData.data.articles;
     const news = newsData.map((val) => ({
       title: val.title,
@@ -14,8 +14,7 @@ const fetchNewsAndStore = async (category,country) => {
       time: val.publishedAt,
       source: val.source.name,
       url: val.url,
-      category: category,
-      place:country
+      category: category
     }));
 
     await newsModel.create(news);
@@ -30,7 +29,7 @@ const createNews = async (req, res) => {
     // Fetch data from CoinCap API
     const data = req.query; 
     const {category,country}=data// Category received from the query parameter
-    await fetchNewsAndStore(category,country);
+    await fetchNewsAndStore(category);
 
     return res.status(200).send({ message: 'News data fetched and stored successfully.' ,data:category });
   } catch (err) {
@@ -41,7 +40,7 @@ const createNews = async (req, res) => {
 const getNews = async (req, res) => {
     try {
       const category = req.query.category
-        const newsdata= await newsModel.find({category:category}).select({__v:0});
+        const newsdata= await newsModel.find({category:category}).sort({ time: -1 }).select({__v:0});
          res.status(200).json(newsdata);
       } catch (error) {
         res.status(500).send({ message: error.message });
@@ -49,7 +48,7 @@ const getNews = async (req, res) => {
 }
 const getAllNews = async (req, res) => {
     try {
-        const newsdata= await newsModel.find().select({__v:0});
+        const newsdata= await newsModel.find().sort({ time: -1 }).select({__v:0});
          res.status(200).json(newsdata);
       } catch (error) {
         res.status(500).send({ message: error.message });
